@@ -1,1 +1,1 @@
-# Concept: An intelligent and aggressive Komodo black dragon, Realistic, Isolated (no backgraund).
+# Concept: An intelligent and aggressive Komodo black dragon, realistic, isolated (no backgraund).
