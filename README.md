@@ -6,7 +6,7 @@ This repository serves as my portfolio to showcase what can be achieved with rap
 
 [Machine Learning Engineering for Production (MLOps)](https://coursera.org/share/0b6c62e32376b1c83e22585afc42897c)
 
-[Analista IMINT (Inteligencia de Imágenes)](https://www.credential.net/b5bf36e1-a969-44f0-ae9e-29c594bf59d9)
+[IMINT Analyst (Imagery intelligence)](https://www.credential.net/b5bf36e1-a969-44f0-ae9e-29c594bf59d9)
 
 [Arte Laguna World](https://artelaguna.world/artist/riveros-oscar/)
 
