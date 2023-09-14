@@ -6,3 +6,4 @@ This repository serves as my portfolio to showcase what can be achieved with rap
 
 [Machine Learning Engineering for Production (MLOps)](https://coursera.org/share/0b6c62e32376b1c83e22585afc42897c)
 
+[Arte Laguna World](https://artelaguna.world/artist/riveros-oscar/)
