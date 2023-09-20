@@ -21,12 +21,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from matplotlib import pyplot as plt
-from PIL import Image
 
 def oracle(sat, cnf):
     loc = len(cnf)
@@ -152,8 +152,8 @@ def gen_dataset(limit_size, num_samples):
 
 if __name__ == '__main__':
 
-    num_samples = 1000
-    limit_size = 150
+    limit_size = int.sys(argv[1])
+    num_samples = int.sys(argv[2])
 
     for _ in range(1):
         print("Generating data")
