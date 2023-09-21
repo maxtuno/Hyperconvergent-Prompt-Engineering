@@ -24,8 +24,6 @@ SOFTWARE.
 import sys
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
 
 
 def oracle(sat, cnf):
@@ -36,6 +34,7 @@ def oracle(sat, cnf):
                 loc -= 1
                 break
     return loc
+
 
 def hess(num_variables, cnf):
     sat = [0] * num_variables
@@ -67,7 +66,8 @@ if __name__ == '__main__':
     limit_size = int(sys.argv[2])
 
     # Restore the weights
-    model = tf.keras.models.load_model('./checkpoints/hess_model_{}'.format(limit_size))
+    model = tf.keras.models.load_model(
+        './checkpoints/hess_model_{}'.format(limit_size))
 
     n, m, cnf = 0, 0, []
     with open(sys.argv[1], 'r') as cnf_file:
@@ -83,7 +83,6 @@ if __name__ == '__main__':
         for lit in cls:
             cnf_matrix[abs(lit) - 1][i] = 0.25 if lit < 0 else 0.75
 
-    
     prediction = model.predict(np.asarray([cnf_matrix]))[0]
     sat = prediction > 0.5
     model_suboptimal = oracle(sat, cnf)
@@ -96,7 +95,7 @@ if __name__ == '__main__':
         else:
             assignment += str(-(i + 1)) + ' '
     print('v ' + assignment + '0')
-    
+
     model_assignment = assignment[:]
 
     print('c HESS for MaxSAT Algorithm')
@@ -113,7 +112,8 @@ if __name__ == '__main__':
 
     hess_assignment = assignment[:]
 
-    print('precision: ', (sum([x == y for x, y in zip(model_assignment.split(' '), hess_assignment.split(' '))]) - 1) / n)
+    print('precision: ', (sum([x == y for x, y in zip(
+        model_assignment.split(' '), hess_assignment.split(' '))]) - 1) / n)
 
-    print('expected model suboptimal ', model_suboptimal )
-    print('expected hess suboptimal ', hess_suboptimal )
+    print('expected model suboptimal ', model_suboptimal)
+    print('expected hess suboptimal ', hess_suboptimal)
