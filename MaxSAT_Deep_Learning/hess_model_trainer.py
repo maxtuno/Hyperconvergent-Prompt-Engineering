@@ -100,7 +100,11 @@ def algorithm_learning(limit_size, input_data, output_data, test_input_data, tes
     # Train the model
     epochs = 10
  
-    history = model.fit(input_data, output_data, validation_data=(test_input_data, test_output_data), epochs=epochs, batch_size=128, shuffle=True)
+    history = model.fit(input_data, 
+                        output_data, 
+                        validation_data=(test_input_data, test_output_data), 
+                        epochs=epochs, 
+                        batch_size=32)
 
     print("Evaluate on test data")
     results = model.evaluate(test_input_data, test_output_data)
