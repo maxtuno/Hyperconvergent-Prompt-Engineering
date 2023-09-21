@@ -22,10 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import sys
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
 from matplotlib import pyplot as plt
 
 def oracle(sat, cnf):
@@ -152,8 +151,8 @@ def gen_dataset(limit_size, num_samples):
 
 if __name__ == '__main__':
 
-    limit_size = int.sys(argv[1])
-    num_samples = int.sys(argv[2])
+    limit_size = int(sys.argv[1])
+    num_samples = int(sys.argv[2])
 
     for _ in range(1):
         print("Generating data")
