@@ -128,7 +128,7 @@ def algorithm_learning(limit_size, input_data, output_data, test_input_data, tes
                   metrics=['binary_accuracy'])
 
     # Train the model
-    epochs = 100
+    epochs = 40
 
     history = model.fit(input_data,
                         output_data,
@@ -191,10 +191,10 @@ if __name__ == '__main__':
     num_samples = int(sys.argv[2])
 
     print("Generating data")
-    input_data, output_data = gen_dataset(limit_size, num_samples)
+    input_data, output_data = gen_dataset(limit_size, num_samples // 2)
     print("Generating test data")
     test_input_data, test_output_data = gen_dataset(
-        limit_size, num_samples)
+        limit_size, num_samples // 2)
 
     algorithm_learning(limit_size, input_data, output_data,
                        test_input_data, test_output_data)
