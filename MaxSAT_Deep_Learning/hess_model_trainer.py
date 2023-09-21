@@ -154,10 +154,9 @@ if __name__ == '__main__':
     limit_size = int(sys.argv[1])
     num_samples = int(sys.argv[2])
 
-    for _ in range(1):
-        print("Generating data")
-        input_data, output_data = gen_dataset(limit_size, num_samples // 2)
-        print("Generating test data")
-        test_input_data, test_output_data = gen_dataset(limit_size, num_samples // 2)
+    print("Generating data")
+    input_data, output_data = gen_dataset(limit_size, num_samples // 2)
+    print("Generating test data")
+    test_input_data, test_output_data = gen_dataset(limit_size, num_samples // 2)
 
-        algorithm_learning(limit_size, input_data, output_data, test_input_data, test_output_data)
+    algorithm_learning(limit_size, input_data, output_data, test_input_data, test_output_data)
