@@ -36,6 +36,7 @@ def oracle(sat, cnf):
                 break
     return loc
 
+
 def hess(num_variables, cnf):
     sat = [0] * num_variables
     opt = sat[:]
@@ -61,57 +62,87 @@ def hess(num_variables, cnf):
             break
     return opt
 
+
 def generate_random_cnf_file(num_variables, num_clauses):
     cnf = []
     for _ in range(num_clauses):
         cls = []
-        while len(cls) < 3:  # Randomly choose the number of literals in a cls (1-3).
+        # Randomly choose the number of literals in a cls (1-3).
+        while len(cls) < 3:
             var = np.random.randint(1, num_variables)  # Random var index
             if np.random.choice([True, False]):  # Randomly negate the var
-                    var = -var
+                var = -var
             if not -var in cls and not var in cls:
                 cls.append(var)
         cnf.append(cls)
     return cnf
 
+
 def algorithm_learning(limit_size, input_data, output_data, test_input_data, test_output_data):
     # TODO: Put a decent model here...
+    preprocessing_layers = [
+        tf.keras.layers.InputLayer(input_shape=(limit_size, limit_size, 1))
+    ]
+
+    def conv_2d_pooling_layers(filters, number_colour_layers):
+        return [
+            tf.keras.layers.Conv2D(
+                filters,
+                number_colour_layers,
+                padding='same',
+                activation='linear'
+            ),
+            tf.keras.layers.MaxPooling2D()
+        ]
+
+    core_layers = \
+        conv_2d_pooling_layers(8, 1) + \
+        conv_2d_pooling_layers(16, 1) + \
+        conv_2d_pooling_layers(32, 1) + \
+        conv_2d_pooling_layers(64, 1)
+
+    dense_layers = [
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(128, activation='linear'),
+        tf.keras.layers.Dense(limit_size)
+    ]
 
     # Build the CNN model
-    model = tf.keras.models.Sequential()
+    model = tf.keras.Sequential(
+        preprocessing_layers +
+        core_layers +
+        dense_layers
+    )
 
-    model.add(tf.keras.layers.Conv2D(32, (3, 3), input_shape=(limit_size, limit_size, 1)))
-    model.add(tf.keras.layers.Activation('linear'))
-    model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
-
-    model.add(tf.keras.layers.Flatten())
-    
-    model.add(tf.keras.layers.Dense(limit_size))
-    
-    model.build(input_shape=(None, limit_size, limit_size, 1))
-    model.summary()
+    checkpoint = tf.keras.callbacks.ModelCheckpoint('./checkpoints/hess_model_{}'.format(limit_size), 
+                                                    monitor="val_binary_accuracy", 
+                                                    mode="max",
+                                                    save_weights_only=False,
+                                                    save_best_only=True, 
+                                                    verbose=1)
+    callbacks = [checkpoint]
 
     # Compile the model
-    model.compile(optimizer='adam',
-              loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
-              metrics=['binary_accuracy'])
-
+    model.compile(optimizer=tf.keras.optimizers.Adam(),
+                  loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+                  metrics=['binary_accuracy'])
 
     # Train the model
-    epochs = 10
- 
-    history = model.fit(input_data, 
-                        output_data, 
-                        validation_data=(test_input_data, test_output_data), 
-                        epochs=epochs, 
-                        batch_size=32)
+    epochs = 100
+
+    history = model.fit(input_data,
+                        output_data,
+                        validation_data=(test_input_data, test_output_data),
+                        epochs=epochs,
+                        batch_size=128,
+                        callbacks=callbacks)
+
+    # Restore the best model
+    model = tf.keras.models.load_model('./checkpoints/hess_model_{}'.format(limit_size))
 
     print("Evaluate on test data")
     results = model.evaluate(test_input_data, test_output_data)
     print("test loss, test acc:", results)
-
-    # Save the weights
-    model.save('./checkpoints/hess_model_{}'.format(limit_size))
 
     plt.clf()
     plt.plot(history.history['binary_accuracy'])
@@ -131,19 +162,20 @@ def algorithm_learning(limit_size, input_data, output_data, test_input_data, tes
     plt.legend(['train', 'val'], loc='upper left')
     plt.savefig('loss_hystory.png')
 
+
 def gen_dataset(limit_size, num_samples):
     input_data, output_data = [], []
-    
-    while len(output_data) < num_samples:    
-        num_variables = np.random.randint(10, limit_size) 
-        num_clauses = np.random.randint(10, limit_size) 
+
+    while len(output_data) < num_samples:
+        num_variables = np.random.randint(10, limit_size)
+        num_clauses = np.random.randint(10, limit_size)
 
         cnf = generate_random_cnf_file(num_variables, num_clauses)
         opt = hess(num_variables, cnf)
         cnf_matrix = np.zeros(shape=(limit_size, limit_size))
         for i, cls in enumerate(cnf):
             for lit in cls:
-                cnf_matrix[abs(lit) - 1][i] = 0.25 if lit < 0 else 0.75
+                cnf_matrix[abs(lit) - 1][i] = -1 if lit < 0 else 1
 
         opt += (limit_size - len(opt)) * [0]
 
@@ -159,8 +191,10 @@ if __name__ == '__main__':
     num_samples = int(sys.argv[2])
 
     print("Generating data")
-    input_data, output_data = gen_dataset(limit_size, num_samples // 2)
+    input_data, output_data = gen_dataset(limit_size, num_samples)
     print("Generating test data")
-    test_input_data, test_output_data = gen_dataset(limit_size, num_samples // 2)
+    test_input_data, test_output_data = gen_dataset(
+        limit_size, num_samples)
 
-    algorithm_learning(limit_size, input_data, output_data, test_input_data, test_output_data)
+    algorithm_learning(limit_size, input_data, output_data,
+                       test_input_data, test_output_data)
