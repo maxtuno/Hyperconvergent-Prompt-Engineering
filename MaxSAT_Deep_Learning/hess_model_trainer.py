@@ -105,7 +105,7 @@ def algorithm_learning(n, m, input_data, output_data, test_input_data, test_outp
     dense_layers = [
         tf.keras.layers.Flatten(),
         tf.keras.layers.Dense(128, activation='relu'),
-        tf.keras.layers.Dense(n)
+        tf.keras.layers.Dense(n, activation='sigmoid')
     ]
 
     # Build the CNN model
@@ -125,7 +125,7 @@ def algorithm_learning(n, m, input_data, output_data, test_input_data, test_outp
 
     # Compile the model
     model.compile(optimizer=tf.keras.optimizers.Adam(),
-                  loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+                  loss=tf.keras.losses.BinaryCrossentropy(from_logits=False),
                   metrics=['binary_accuracy'])
 
     # Train the model
