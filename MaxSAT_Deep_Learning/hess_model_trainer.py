@@ -91,7 +91,7 @@ def algorithm_learning(n, m, input_data, output_data, test_input_data, test_outp
                 filters,
                 number_colour_layers,
                 padding='same',
-                activation='linear'
+                activation='relu'
             ),
             tf.keras.layers.MaxPooling2D()
         ]
@@ -104,7 +104,7 @@ def algorithm_learning(n, m, input_data, output_data, test_input_data, test_outp
 
     dense_layers = [
         tf.keras.layers.Flatten(),
-        tf.keras.layers.Dense(128, activation='linear'),
+        tf.keras.layers.Dense(128, activation='relu'),
         tf.keras.layers.Dense(n)
     ]
 
