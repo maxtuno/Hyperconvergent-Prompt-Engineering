@@ -29,7 +29,7 @@ def generate_random_cnf_file(num_variables, num_clauses):
         print('p cnf {} {}'.format(num_variables, num_clauses), file=file)
         for _ in range(num_clauses):
             cls = []
-            while len(cls) < 3:
+            while len(cls) < np.random.randint(2, num_variables):
                 var = np.random.randint(1, num_variables)  # Random var index
                 if np.random.choice([True, False]):  # Randomly negate the var
                     var = -var

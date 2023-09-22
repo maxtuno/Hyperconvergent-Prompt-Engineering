@@ -27,6 +27,7 @@ import numpy as np
 import tensorflow as tf
 from matplotlib import pyplot as plt
 
+
 def oracle(sat, cnf):
     loc = len(cnf)
     for cls in cnf:
@@ -68,7 +69,7 @@ def generate_random_cnf_file(num_variables, num_clauses):
     for _ in range(num_clauses):
         cls = []
         # Randomly choose the number of literals in a cls (1-3).
-        while len(cls) < 3:
+        while len(cls) < np.random.randint(2, num_variables):
             var = np.random.randint(1, num_variables)  # Random var index
             if np.random.choice([True, False]):  # Randomly negate the var
                 var = -var
@@ -78,10 +79,10 @@ def generate_random_cnf_file(num_variables, num_clauses):
     return cnf
 
 
-def algorithm_learning(limit_size, input_data, output_data, test_input_data, test_output_data):
+def algorithm_learning(n, m, input_data, output_data, test_input_data, test_output_data):
     # TODO: Put a decent model here...
     preprocessing_layers = [
-        tf.keras.layers.InputLayer(input_shape=(limit_size, limit_size, 1))
+        tf.keras.layers.InputLayer(input_shape=(n, m, 1)),
     ]
 
     def conv_2d_pooling_layers(filters, number_colour_layers):
@@ -104,7 +105,7 @@ def algorithm_learning(limit_size, input_data, output_data, test_input_data, tes
     dense_layers = [
         tf.keras.layers.Flatten(),
         tf.keras.layers.Dense(128, activation='linear'),
-        tf.keras.layers.Dense(limit_size)
+        tf.keras.layers.Dense(n)
     ]
 
     # Build the CNN model
@@ -114,11 +115,11 @@ def algorithm_learning(limit_size, input_data, output_data, test_input_data, tes
         dense_layers
     )
 
-    checkpoint = tf.keras.callbacks.ModelCheckpoint('./checkpoints/hess_model_{}'.format(limit_size), 
-                                                    monitor="val_binary_accuracy", 
+    checkpoint = tf.keras.callbacks.ModelCheckpoint('./checkpoints/hess_model_{}_{}'.format(n, m),
+                                                    monitor="val_binary_accuracy",
                                                     mode="max",
                                                     save_weights_only=False,
-                                                    save_best_only=True, 
+                                                    save_best_only=True,
                                                     verbose=1)
     callbacks = [checkpoint]
 
@@ -138,7 +139,8 @@ def algorithm_learning(limit_size, input_data, output_data, test_input_data, tes
                         callbacks=callbacks)
 
     # Restore the best model
-    model = tf.keras.models.load_model('./checkpoints/hess_model_{}'.format(limit_size))
+    model = tf.keras.models.load_model(
+        './checkpoints/hess_model_{}_{}'.format(n, m))
 
     print("Evaluate on test data")
     results = model.evaluate(test_input_data, test_output_data)
@@ -163,21 +165,21 @@ def algorithm_learning(limit_size, input_data, output_data, test_input_data, tes
     plt.savefig('loss_hystory.png')
 
 
-def gen_dataset(limit_size, num_samples):
+def gen_dataset(n, m, num_samples):
     input_data, output_data = [], []
 
     while len(output_data) < num_samples:
-        num_variables = np.random.randint(10, limit_size)
-        num_clauses = np.random.randint(10, limit_size)
+        num_variables = np.random.randint(10, n)
+        num_clauses = np.random.randint(10, m)
 
         cnf = generate_random_cnf_file(num_variables, num_clauses)
         opt = hess(num_variables, cnf)
-        cnf_matrix = np.zeros(shape=(limit_size, limit_size))
+        cnf_matrix = np.zeros(shape=(n, m))
         for i, cls in enumerate(cnf):
             for lit in cls:
                 cnf_matrix[abs(lit) - 1][i] = -1 if lit < 0 else 1
 
-        opt += (limit_size - len(opt)) * [0]
+        opt += (n - len(opt)) * [0]
 
         input_data.append(cnf_matrix)
         output_data.append(opt)
@@ -187,14 +189,16 @@ def gen_dataset(limit_size, num_samples):
 
 if __name__ == '__main__':
 
-    limit_size = int(sys.argv[1])
-    num_samples = int(sys.argv[2])
+    context_size = int(sys.argv[1])  # size of context
+    num_samples = int(sys.argv[2])  # number of test samples
+
+    n = context_size  # good results why? number of _variables
+    m = context_size  # good results why? number of clauses
 
     print("Generating data")
-    input_data, output_data = gen_dataset(limit_size, num_samples // 2)
+    input_data, output_data = gen_dataset(n, m, num_samples // 2)
     print("Generating test data")
-    test_input_data, test_output_data = gen_dataset(
-        limit_size, num_samples // 2)
+    test_input_data, test_output_data = gen_dataset(n, m, num_samples // 2)
 
-    algorithm_learning(limit_size, input_data, output_data,
+    algorithm_learning(n, m, input_data, output_data,
                        test_input_data, test_output_data)

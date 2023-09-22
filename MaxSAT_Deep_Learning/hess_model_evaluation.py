@@ -63,11 +63,11 @@ def hess(num_variables, cnf):
 
 
 if __name__ == '__main__':
-    limit_size = int(sys.argv[2])
+    context_size = int(sys.argv[2])
 
     # Restore the weights
     model = tf.keras.models.load_model(
-        './checkpoints/hess_model_{}'.format(limit_size))
+        './checkpoints/hess_model_{}_{}'.format(context_size, context_size))
 
     n, m, cnf = 0, 0, []
     with open(sys.argv[1], 'r') as cnf_file:
@@ -78,7 +78,7 @@ if __name__ == '__main__':
             else:
                 cnf.append(list(map(int, line.rstrip('\n')[:-2].split(' '))))
 
-    cnf_matrix = np.zeros(shape=(limit_size, limit_size))
+    cnf_matrix = np.zeros(shape=(context_size, context_size))
     for i, cls in enumerate(cnf):
         for lit in cls:
             cnf_matrix[abs(lit) - 1][i] = 0.25 if lit < 0 else 0.75
