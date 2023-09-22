@@ -10,4 +10,4 @@ This repository serves as my portfolio to showcase what can be achieved with rap
 
 [Arte Laguna World](https://artelaguna.world/artist/riveros-oscar/)
 
-[Instagram](https://www.instagram.com/maxtuno/)
+[Web](https://www.oscarriveros.art/)
