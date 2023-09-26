@@ -85,10 +85,9 @@ if __name__ == '__main__':
 
     cnf_matrix = cnf_to_matrix(cnf, context_size)
     
-    prediction = model.predict(np.asarray([cnf_matrix]))[0]
-    inf = min(prediction)
-    sup = max(prediction)
-    sat = prediction >= (sup - inf) / 2
+    prediction = model.predict(np.asarray([cnf_matrix]))[0][:n]
+    
+    sat = prediction >= np.mean(prediction)
     model_suboptimal = oracle(sat, cnf)
     print('c HESS for MaxSAT model')
     print('s OPTIMAL (?) {}'.format(model_suboptimal))
