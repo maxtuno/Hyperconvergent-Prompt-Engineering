@@ -1,5 +1,3 @@
-import sys
-import numpy as np
 
 """
 MIT License
@@ -30,6 +28,20 @@ My Reformulation of SAT
 CNF n vars m clauses matrix form (-1, 0, 1) -> (n + 1,m) with n + 1 column number of nonzero elements in row, i.e, number of literals in each clause, CNF is SATIAFIABLE if and only if exist a (-1, 1...) that is interior to the polyhedral H-form of the CNF.
 """
 
+"""
+The H form of CNF  (-1, 0, 1) elements, last column number nonzero elements per ROW
+
+If S (-1, 1...) not satisfied the CNF, exist S * ROW where S=-ROW (-S in CNF) then sum(S * ROW)  == minus the number of nonzero elements in the ROW.
+
+The result follows from ensure SATISFIABILITY
+"""
+
+
+
+
+import sys
+import hashlib
+import numpy as np
 def cnf_to_matrix(cnf, n, m):
     matrix = np.zeros(shape=(n + 1, m))
     for i, cls in enumerate(cnf):
@@ -38,8 +50,10 @@ def cnf_to_matrix(cnf, n, m):
         matrix[-1][i] = -len(cls)
     return np.asarray(matrix).T
 
+
 def punto_dentro_del_politopo_cnf(point, h_representation):
-    return h_representation.shape[0] - np.sum(np.matmul(h_representation[:,:-1], point) > h_representation[:,-1])
+    return np.sum(np.matmul(h_representation[:, :-1], point) > h_representation[:, -1])
+
 
 def hess_polyedra(num_variables, h_representation):
     sat = [-1] * num_variables
@@ -49,7 +63,8 @@ def hess_polyedra(num_variables, h_representation):
         done = True
         for i in range(num_variables):
             sat[i] = -sat[i]
-            loc = punto_dentro_del_politopo_cnf(sat, h_representation)
+            loc = h_representation.shape[0] - \
+                punto_dentro_del_politopo_cnf(sat, h_representation)
             if loc < glb:
                 glb = loc
                 print(glb)
@@ -62,6 +77,7 @@ def hess_polyedra(num_variables, h_representation):
         if done:
             break
     return opt
+
 
 def generate_random_cnf_file(num_variables, num_clauses):
     cnf = []
@@ -76,6 +92,7 @@ def generate_random_cnf_file(num_variables, num_clauses):
         cnf.append(cls)
     return cnf
 
+
 if __name__ == '__main__':
 
     n, m, cnf = 0, 0, []
@@ -87,10 +104,9 @@ if __name__ == '__main__':
             else:
                 cnf.append(list(map(int, line.rstrip('\n')[:-2].split(' '))))
 
-    
     h_representation = cnf_to_matrix(cnf, n, m)
     print(h_representation)
 
     sub_optimal = hess_polyedra(n, h_representation)
-    
+
     print(sub_optimal)
