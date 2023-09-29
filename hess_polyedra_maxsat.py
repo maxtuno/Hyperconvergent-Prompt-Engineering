@@ -30,24 +30,16 @@ My Reformulation of SAT
 CNF n vars m clauses matrix form (-1, 0, 1) -> (n + 1,m) with n + 1 column number of nonzero elements in row, i.e, number of literals in each clause, CNF is SATIAFIABLE if and only if exist a (-1, 1...) that is interior to the polyhedral H-form of the CNF.
 """
 
-"""
-The H form of CNF  (-1, 0, 1) elements, last column number nonzero elements per ROW
-
-If S (-1, 1...) not satisfied the CNF, exist S * ROW where S=-ROW (-S in CNF) then sum(S * ROW) == minus the number of nonzero elements in the ROW.
-
-The result follows from ensure SATISFIABILITY
-"""
-
 def cnf_to_matrix(cnf, n, m):
     matrix = np.zeros(shape=(n + 1, m))
     for i, cls in enumerate(cnf):
         for lit in cls:
             matrix[abs(lit) - 1][i] = -1 if lit < 0 else 1
-        matrix[-1][i] = len(cls)
+        matrix[-1][i] = -len(cls)
     return np.asarray(matrix).T
 
 def punto_dentro_del_politopo_cnf(point, h_representation):
-    return len(h_representation) - sum(sum(c * x for c, x in zip(row[:-1], point)) > -row[-1] for row in h_representation)
+    return h_representation.shape[0] - np.sum(np.matmul(h_representation[:,:-1], point) > h_representation[:,-1])
 
 def hess_polyedra(num_variables, h_representation):
     sat = [-1] * num_variables
