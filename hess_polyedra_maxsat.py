@@ -30,6 +30,14 @@ My Reformulation of SAT
 CNF n vars m clauses matrix form (-1, 0, 1) -> (n + 1,m) with n + 1 column number of nonzero elements in row, i.e, number of literals in each clause, CNF is SATIAFIABLE if and only if exist a (-1, 1...) that is interior to the polyhedral H-form of the CNF.
 """
 
+"""
+The H form of CNF  (-1, 0, 1) elements, last column number nonzero elements per ROW
+
+If S (-1, 1...) not satisfied the CNF, exist S * ROW where S=-ROW (-S in CNF) then sum(S * ROW) == minus the number of nonzero elements in the ROW.
+
+The result follows from ensure SATISFIABILITY
+"""
+
 def cnf_to_matrix(cnf, n, m):
     matrix = np.zeros(shape=(n + 1, m))
     for i, cls in enumerate(cnf):
