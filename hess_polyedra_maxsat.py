@@ -42,8 +42,10 @@ The result follows from ensure SATISFIABILITY
 import sys
 import hashlib
 import numpy as np
+
+
 def cnf_to_matrix(cnf, n, m):
-    matrix = np.zeros(shape=(n + 1, m))
+    matrix = np.zeros(shape=(n + 1, m), dtype=np.int8)
     for i, cls in enumerate(cnf):
         for lit in cls:
             matrix[abs(lit) - 1][i] = -1 if lit < 0 else 1
@@ -63,8 +65,7 @@ def hess_polyedra(num_variables, h_representation):
         done = True
         for i in range(num_variables):
             sat[i] = -sat[i]
-            loc = h_representation.shape[0] - \
-                punto_dentro_del_politopo_cnf(sat, h_representation)
+            loc = h_representation.shape[0] - punto_dentro_del_politopo_cnf(sat, h_representation)
             if loc < glb:
                 glb = loc
                 print(glb)
@@ -77,20 +78,6 @@ def hess_polyedra(num_variables, h_representation):
         if done:
             break
     return opt
-
-
-def generate_random_cnf_file(num_variables, num_clauses):
-    cnf = []
-    for _ in range(num_clauses):
-        cls = []
-        while len(cls) < 3:
-            var = np.random.randint(1, num_variables + 1)
-            if np.random.choice([True, False]):
-                var = -var
-            if not -var in cls and not var in cls:
-                cls.append(var)
-        cnf.append(cls)
-    return cnf
 
 
 if __name__ == '__main__':
