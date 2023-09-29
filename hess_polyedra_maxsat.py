@@ -39,7 +39,7 @@ def cnf_to_matrix(cnf, n, m):
     return np.asarray(matrix).T
 
 def punto_dentro_del_politopo_cnf(point, h_representation):
-    return len(h_representation) - sum(sum(c * x for c, x in zip(row[:-1], point)) > -row[-1] for row in h_representation[:-1])
+    return len(h_representation) - sum(sum(c * x for c, x in zip(row[:-1], point)) > -row[-1] for row in h_representation)
 
 def hess_polyedra(num_variables, h_representation):
     sat = [-1] * num_variables
