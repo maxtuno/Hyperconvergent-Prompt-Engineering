@@ -1,3 +1,4 @@
+
 """
 MIT License
 
@@ -35,12 +36,15 @@ If S (-1, 1...) not satisfied the CNF, exist S * ROW where S=-ROW (-S in CNF) th
 The result follows from ensure SATISFIABILITY
 """
 
+
+
+
 import sys
+import hashlib
 import numpy as np
 
-db = []
 
-def cnf_to_h_form(cnf, n, m):
+def cnf_to_matrix(cnf, n, m):
     matrix = np.zeros(shape=(n + 1, m), dtype=np.int8)
     for i, cls in enumerate(cnf):
         for lit in cls:
@@ -49,36 +53,34 @@ def cnf_to_h_form(cnf, n, m):
     return np.asarray(matrix).T
 
 
-def inside_polytope(point, h_cnf):
-    return np.sum(np.matmul(h_cnf[:, :-1], point) > h_cnf[:, -1])
+def punto_dentro_del_politopo_cnf(point, h_representation):
+    return np.sum(np.matmul(h_representation[:, :-1], point) > h_representation[:, -1])
 
 
-def hess(num_variables, h_cnf):
+def hess_polyedra(num_variables, h_representation):
     sat = [-1] * num_variables
     opt = sat[:]
     glb = np.inf
     while True:
         done = True
-        for i in range(num_variables):
+        for k in range(num_variables):
             for j in range(num_variables):
-                for k in range(num_variables):
-                    sat[i], sat[j] = sat[j], sat[i]
-                    if sat in db:
-                        sat[k] = -sat[k]
-                    else:
-                        db.append(sat[:])
-                        loc = h_cnf.shape[0] - inside_polytope(sat, h_cnf)
-                        if loc < glb:
-                            glb = loc
-                            print(glb)
-                            done = False
-                            opt = sat[:]
-                            if glb == 0:
-                                return opt
-                        elif loc > glb:
-                            sat[k] = -sat[k]
-        if done:
-            break
+                for i in range(num_variables):
+                    sat[k], sat[j] = sat[j], sat[k]
+                    sat[i] = -sat[i]
+                    loc = h_representation.shape[0] - punto_dentro_del_politopo_cnf(sat, h_representation)
+                    if loc < glb:
+                        glb = loc
+                        print(glb)
+                        done = False
+                        opt = sat[:]
+                        if glb == 0:
+                            return opt
+                    elif loc > glb:
+                        sat[i] = -sat[i]
+                        sat[k], sat[j] = sat[j], sat[k]
+                if done:
+                    break
     return opt
 
 
@@ -91,14 +93,11 @@ if __name__ == '__main__':
             if line.startswith('p cnf'):
                 n, m = list(map(int, line[6:].split(' ')))
             else:
-                try:
-                    cnf.append(list(map(int, line.rstrip('\n')[:-2].split(' '))))
-                except Exception as ex:
-                    print(ex)
+                cnf.append(list(map(int, line.rstrip('\n')[:-2].split(' '))))
 
-    h_cnf = cnf_to_h_form(cnf, n, m)
-    print(h_cnf)
+    h_representation = cnf_to_matrix(cnf, n, m)
+    print(h_representation)
 
-    sub_optimal = hess(n, h_cnf)
+    sub_optimal = hess_polyedra(n, h_representation)
 
     print(sub_optimal)
