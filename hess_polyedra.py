@@ -40,12 +40,11 @@ The result follows from ensure SATISFIABILITY
 
 
 import sys
-import hashlib
 import numpy as np
 
 
 def cnf_to_matrix(cnf, n, m):
-    matrix = np.zeros(shape=(n + 1, m), dtype=np.int8)
+    matrix = np.zeros(shape=(n + 1, m)).astype(np.int8)
     for i, cls in enumerate(cnf):
         for lit in cls:
             matrix[abs(lit) - 1][i] = -1 if lit < 0 else 1
